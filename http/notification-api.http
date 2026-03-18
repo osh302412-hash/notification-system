@@ -1,0 +1,171 @@
+### 1. 회원가입 완료 알림 (EMAIL + IN_APP)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+X-Correlation-Id: corr-welcome-001
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "notificationType": "ACCOUNT",
+  "templateCode": "WELCOME",
+  "variables": {
+    "userName": "홍길동"
+  },
+  "channels": ["EMAIL", "IN_APP"],
+  "priority": "NORMAL",
+  "idempotencyKey": "welcome-user1-20240101"
+}
+
+### 2. 결제 완료 알림 (SMS + PUSH + IN_APP)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+X-Correlation-Id: corr-payment-001
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "notificationType": "TRANSACTION",
+  "templateCode": "PAYMENT_COMPLETE",
+  "variables": {
+    "userName": "홍길동",
+    "amount": "50000",
+    "orderId": "ORD-2024-001"
+  },
+  "channels": ["SMS", "PUSH", "IN_APP"],
+  "priority": "NORMAL",
+  "idempotencyKey": "payment-ord2024001"
+}
+
+### 3. 보안 경고 알림 (HIGH priority - quiet hours 무시)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+X-Correlation-Id: corr-security-001
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "notificationType": "SECURITY",
+  "templateCode": "SECURITY_ALERT",
+  "variables": {
+    "userName": "홍길동",
+    "alertMessage": "새로운 기기에서 로그인이 감지되었습니다."
+  },
+  "priority": "HIGH",
+  "idempotencyKey": "security-alert-001"
+}
+
+### 4. 마케팅 알림 (수신 동의 확인 + quiet hours 적용)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+X-Correlation-Id: corr-marketing-001
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "notificationType": "MARKETING",
+  "templateCode": "MARKETING_PROMO",
+  "variables": {
+    "userName": "홍길동",
+    "promoTitle": "봄맞이 특별 할인",
+    "promoDescription": "전 상품 30% 할인 이벤트!"
+  },
+  "channels": ["EMAIL", "PUSH", "IN_APP"],
+  "priority": "LOW",
+  "idempotencyKey": "marketing-spring-2024"
+}
+
+### 5. 마케팅 알림 - 수신 거부 사용자 (차단됨)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+
+{
+  "userId": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+  "notificationType": "MARKETING",
+  "templateCode": "MARKETING_PROMO",
+  "variables": {
+    "userName": "김철수",
+    "promoTitle": "봄맞이 특별 할인",
+    "promoDescription": "전 상품 30% 할인 이벤트!"
+  },
+  "channels": ["EMAIL", "PUSH"],
+  "idempotencyKey": "marketing-blocked-user2"
+}
+
+### 6. 동일 idempotency key 중복 요청 (첫 번째 결과 반환)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+
+{
+  "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "notificationType": "ACCOUNT",
+  "templateCode": "WELCOME",
+  "variables": {
+    "userName": "홍길동"
+  },
+  "idempotencyKey": "welcome-user1-20240101"
+}
+
+### 7. Provider 실패 테스트 (fail@example.com -> permanent failure)
+POST http://localhost:8080/api/v1/notifications
+Content-Type: application/json
+
+{
+  "userId": "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
+  "notificationType": "ACCOUNT",
+  "templateCode": "WELCOME",
+  "variables": {
+    "userName": "실패테스트"
+  },
+  "channels": ["EMAIL"],
+  "idempotencyKey": "fail-email-test-001"
+}
+
+### 8. 알림 단건 조회
+GET http://localhost:8080/api/v1/notifications/{{notificationId}}
+Content-Type: application/json
+
+### 9. 사용자 In-App 알림 목록 조회
+GET http://localhost:8080/api/v1/users/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/in-app-notifications?limit=50&offset=0
+
+### 10. In-App 알림 읽음 처리
+PATCH http://localhost:8080/api/v1/users/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/in-app-notifications/{{inAppNotificationId}}/read
+Content-Type: application/json
+
+### 11. 사용자 알림 설정 조회
+GET http://localhost:8080/api/v1/users/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/preferences
+
+### 12. 사용자 알림 설정 수정
+PUT http://localhost:8080/api/v1/users/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/preferences
+Content-Type: application/json
+
+{
+  "preferences": [
+    {
+      "notificationType": "MARKETING",
+      "channel": "EMAIL",
+      "enabled": true,
+      "quietHoursEnabled": true,
+      "quietHoursStart": "22:00",
+      "quietHoursEnd": "08:00"
+    },
+    {
+      "notificationType": "MARKETING",
+      "channel": "PUSH",
+      "enabled": false,
+      "quietHoursEnabled": false
+    }
+  ]
+}
+
+### 13. 템플릿 조회
+GET http://localhost:8080/api/v1/templates/WELCOME
+
+### 14. 템플릿 렌더링 미리보기
+POST http://localhost:8080/api/v1/templates/WELCOME/render-preview
+Content-Type: application/json
+
+{
+  "channel": "EMAIL",
+  "variables": {
+    "userName": "테스트사용자"
+  }
+}
+
+### 15. 헬스 체크
+GET http://localhost:8080/actuator/health

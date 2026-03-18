@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///notification
+    username: notification
+    password: notification
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+notification:
+  worker:
+    poll-interval-ms: 100
+    batch-size: 10
+    thread-pool-size: 2
+  retry:
+    max-attempts: 3
+    initial-delay-ms: 100
+    multiplier: 1.5
+    max-delay-ms: 1000
+  idempotency:
+    ttl-hours: 1
+  quiet-hours:
+    default-start: "22:00"
+    default-end: "08:00"
+  deduplication:
+    window-minutes: 5
+
+logging:
+  level:
+    com.notification: DEBUG

@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: notification-system
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification
+    username: notification
+    password: notification
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 5000ms
+
+notification:
+  worker:
+    poll-interval-ms: 1000
+    batch-size: 50
+    thread-pool-size: 5
+  retry:
+    max-attempts: 3
+    initial-delay-ms: 1000
+    multiplier: 2.0
+    max-delay-ms: 30000
+  idempotency:
+    ttl-hours: 24
+  quiet-hours:
+    default-start: "22:00"
+    default-end: "08:00"
+  deduplication:
+    window-minutes: 60
+
+logging:
+  level:
+    com.notification: DEBUG
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] [%X{correlationId}] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: notification-system
