@@ -1,6 +1,8 @@
 package com.notification.infrastructure.persistence.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -23,14 +25,17 @@ class NotificationRequestEntity(
     @Column(name = "template_code", nullable = false, length = 100)
     val templateCode: String = "",
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     val variables: String = "{}",
 
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "requested_channels", columnDefinition = "TEXT[]")
-    val requestedChannels: String = "",
+    val requestedChannels: Array<String> = emptyArray(),
 
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "resolved_channels", columnDefinition = "TEXT[]")
-    var resolvedChannels: String? = null,
+    var resolvedChannels: Array<String>? = null,
 
     @Column(nullable = false, length = 20)
     val priority: String = "NORMAL",
@@ -41,6 +46,7 @@ class NotificationRequestEntity(
     @Column(name = "scheduled_at")
     val scheduledAt: ZonedDateTime? = null,
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "preference_snapshot", columnDefinition = "jsonb")
     var preferenceSnapshot: String? = null,
 

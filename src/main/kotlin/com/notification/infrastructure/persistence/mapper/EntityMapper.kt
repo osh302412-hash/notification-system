@@ -96,8 +96,8 @@ object EntityMapper {
         notificationType = domain.notificationType.name,
         templateCode = domain.templateCode,
         variables = objectMapper.writeValueAsString(domain.variables),
-        requestedChannels = "{${domain.requestedChannels.joinToString(",") { it.name }}}",
-        resolvedChannels = domain.resolvedChannels?.let { "{${it.joinToString(",") { ch -> ch.name }}}" },
+        requestedChannels = domain.requestedChannels.map { it.name }.toTypedArray(),
+        resolvedChannels = domain.resolvedChannels?.map { it.name }?.toTypedArray(),
         priority = domain.priority.name,
         status = domain.status.name,
         scheduledAt = domain.scheduledAt,
@@ -114,8 +114,8 @@ object EntityMapper {
         notificationType = NotificationType.valueOf(entity.notificationType),
         templateCode = entity.templateCode,
         variables = objectMapper.readValue(entity.variables, object : TypeReference<Map<String, String>>() {}),
-        requestedChannels = parseChannelArray(entity.requestedChannels),
-        resolvedChannels = entity.resolvedChannels?.let { parseChannelArray(it) },
+        requestedChannels = entity.requestedChannels.mapNotNull { runCatching { NotificationChannel.valueOf(it) }.getOrNull() },
+        resolvedChannels = entity.resolvedChannels?.mapNotNull { runCatching { NotificationChannel.valueOf(it) }.getOrNull() },
         priority = NotificationPriority.valueOf(entity.priority),
         status = NotificationRequestStatus.valueOf(entity.status),
         scheduledAt = entity.scheduledAt,
@@ -237,11 +237,4 @@ object EntityMapper {
         expiresAt = entity.expiresAt
     )
 
-    private fun parseChannelArray(pgArray: String): List<NotificationChannel> {
-        return pgArray
-            .removeSurrounding("{", "}")
-            .split(",")
-            .filter { it.isNotBlank() }
-            .map { NotificationChannel.valueOf(it.trim()) }
-    }
 }

@@ -1,6 +1,8 @@
 package com.notification.infrastructure.persistence.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -23,9 +25,11 @@ class NotificationDeliveryAttemptEntity(
     @Column(nullable = false, length = 30)
     val status: String = "",
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "request_payload", columnDefinition = "jsonb")
     val requestPayload: String? = null,
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "response_payload", columnDefinition = "jsonb")
     val responsePayload: String? = null,
 

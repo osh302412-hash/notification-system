@@ -1,6 +1,8 @@
 package com.notification.infrastructure.persistence.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -29,6 +31,7 @@ class NotificationTemplateEntity(
     @Column(name = "body_template", nullable = false, columnDefinition = "TEXT")
     val bodyTemplate: String = "",
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "default_variables", columnDefinition = "jsonb")
     val defaultVariables: String = "{}",
 

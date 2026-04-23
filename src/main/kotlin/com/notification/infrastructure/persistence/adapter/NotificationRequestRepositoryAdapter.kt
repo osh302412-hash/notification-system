@@ -30,7 +30,7 @@ class NotificationRequestRepositoryAdapter(
     override fun updateStatus(id: UUID, status: NotificationRequestStatus, resolvedChannels: List<NotificationChannel>?, preferenceSnapshot: Map<String, Any>?) {
         val entity = jpaRepository.findById(id).orElseThrow()
         entity.status = status.name
-        resolvedChannels?.let { entity.resolvedChannels = "{${it.joinToString(",") { ch -> ch.name }}}" }
+        resolvedChannels?.let { entity.resolvedChannels = it.map { ch -> ch.name }.toTypedArray() }
         preferenceSnapshot?.let {
             val objectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
             entity.preferenceSnapshot = objectMapper.writeValueAsString(it)

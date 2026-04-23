@@ -1,9 +1,7 @@
 package com.notification.infrastructure.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
 
-@Configuration
 @ConfigurationProperties(prefix = "notification")
 class NotificationProperties {
     var worker: WorkerProperties = WorkerProperties()

@@ -1,6 +1,8 @@
 package com.notification.infrastructure.persistence.entity
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -26,6 +28,7 @@ class InAppNotificationEntity(
     @Column(name = "notification_type", nullable = false, length = 50)
     val notificationType: String = "",
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     val data: String = "{}",
 
